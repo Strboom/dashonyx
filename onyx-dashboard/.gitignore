@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build outputs
+frontend/dist/
+backend/dist/
+
+# Environment variables — NEVER commit these
+.env
+backend/.env
+frontend/.env
+
+# Data files (Railway uses ephemeral filesystem; use a DB instead)
+backend/dashboard_data.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
