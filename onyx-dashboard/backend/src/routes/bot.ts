@@ -24,7 +24,7 @@ router.post('/heartbeat', requireBotKey, (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-// POST /api/bot/guilds  — bot pushes full guild list
+// POST /api/bot/guilds  — bot pushes full guild list every 30s
 router.post('/guilds', requireBotKey, (req: Request, res: Response) => {
   const { guilds } = req.body;
   if (Array.isArray(guilds)) {
@@ -52,9 +52,13 @@ router.post('/guild-event', requireBotKey, (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
-// POST /api/bot/dms  — DM log entries (stored in memory only)
+// POST /api/bot/dms  — DM log entries (acknowledged but not persisted)
 router.post('/dms', requireBotKey, (_req: Request, res: Response) => {
-  // DM logs are not persisted in this version
+  res.json({ ok: true });
+});
+
+// POST /api/bot/logs  — bot log entries (acknowledged but not persisted)
+router.post('/logs', requireBotKey, (_req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
