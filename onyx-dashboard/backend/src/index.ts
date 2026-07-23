@@ -13,6 +13,10 @@ const app = express();
 const PORT = parseInt(process.env.PORT || '4000', 10);
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+// Trust Railway / Render / Heroku reverse proxy so that
+// req.protocol === 'https' and secure cookies work correctly.
+app.set('trust proxy', 1);
+
 // Load persistent data
 loadDb();
 
@@ -32,6 +36,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: 'lax',  // survive the Discord → your-domain redirect
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     },
   })
