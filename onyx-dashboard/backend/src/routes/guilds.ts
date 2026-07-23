@@ -7,12 +7,15 @@ const router = Router();
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
-// GET /api/guilds  — user's guilds that have Onyx
+// Bitmask for the ADMINISTRATOR permission in Discord
+const ADMINISTRATOR = BigInt(0x8);
+
+// GET /api/guilds  — user's guilds where they are admin AND Onyx is present
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const token = req.session.access_token!;
 
-    // Fetch guilds the user is in
+    // Fetch guilds the user is in (includes permissions bitmask)
     const userGuildsRes = await axios.get(`${DISCORD_API}/users/@me/guilds`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -24,10 +27,15 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       permissions: string;
     }> = userGuildsRes.data;
 
-    // Filter to guilds where Onyx is present
+    // Filter to guilds where:
+    //   1. The user has ADMINISTRATOR permission (bit 0x8), AND
+    //   2. Onyx is present in that server
     const botGuilds = getGuilds();
     const result = userGuilds
-      .filter((g) => botGuilds[g.id])
+      .filter((g) => {
+        const isAdmin = (BigInt(g.permissions) & ADMINISTRATOR) === ADMINISTRATOR;
+        return isAdmin && botGuilds[g.id];
+      })
       .map((g) => {
         const bot = botGuilds[g.id];
         return {
@@ -121,8 +129,8 @@ router.get('/:guildId/roles', requireAuth, async (req: Request, res: Response) =
   }
 });
 
-// GET /api/guilds/status  — bot status
-router.get('/status/bot', (_req: Request, res: Response) => {
+// GET /api/guilds/status/bot  — bot status for frontend
+router.get('/status/bot', requireAuth, (_req: Request, res: Response) => {
   const db = getDb();
   res.json(db.bot_status);
 });
